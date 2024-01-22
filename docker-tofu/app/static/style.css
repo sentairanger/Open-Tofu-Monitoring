@@ -1,0 +1,18 @@
+body {
+	background: #33fff3;
+}
+
+button {
+	background: #ff3633;
+	font-size: 17px;
+	border-radius: 12px;
+	padding: 17px 32px;
+}
+
+.submit {
+	padding: 16px 32px;
+	font-size: 16px;
+	background: #33ffb8;
+	border-radius: 12px;
+	
+	}
