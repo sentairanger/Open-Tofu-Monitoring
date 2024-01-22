@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: roboport
+  labels:
+    name: tofu-monitoring
+    release: prometheus
+  name: tofu-monitoring
+  namespace: default
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: tofu-monitoring
+  template:
+    metadata:
+      labels:
+        app: tofu-monitoring
+    spec:
+      containers:
+      - name: tofu-monitoring
+        image: linuxrobotgeek/tofu-monitoring:latest
+        imagePullPolicy: Always
+        ports:
+        - name: roboport
+          containerPort: 5000
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tofu-monitoring
+  namespace: default
+  labels:
+    app: tofu-monitoring
+spec:
+  selector:
+    app: tofu-monitoring
+  ports:
+    - name: tofu-monitoring
+      protocol: TCP
+      port: 5000
+      targetPort: roboport
+  type: LoadBalancer
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: tofu-monitoring
+  namespace: monitoring
+  labels:
+    app: tofu-monitoring
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: tofu-monitoring
+  endpoints:
+  - port: tofu-monitoring
+    path: /metrics
+    interval: 15s
+  namespaceSelector:
+    matchNames:
+    - default
